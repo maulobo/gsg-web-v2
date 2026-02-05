@@ -20,7 +20,7 @@ export default function ProductDetailClient({ product }) {
   useEffect(() => {
     if (product && lastTrackedProduct.current !== product.code) {
       lastTrackedProduct.current = product.code;
-      
+
       trackEvent('view_product', {
         code: product.code, // Ajusta si la propiedad se llama diferente
         name: product.name,

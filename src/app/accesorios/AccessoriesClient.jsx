@@ -4,19 +4,29 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NoResults } from '@/components/productos/product-no-result';
 
+const ACCESSORY_TYPES = [
+  'Amplificadores',
+  'Controladoras',
+  'Dimmers',
+  'Conectores',
+  'Sensores',
+];
+
 export default function AccessoriesClient({ initialAccessories }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTipos, setSelectedTipos] = useState([]);
+  const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedFinishes, setSelectedFinishes] = useState([]);
   const [selectedLightTones, setSelectedLightTones] = useState([]);
 
   // Extraer tipos únicos
-  const availableTipos = useMemo(() => {
-    const tipos = new Set();
-    initialAccessories.forEach((a) => {
-      if (a.tipo) tipos.add(a.tipo);
+  const availableTypes = useMemo(() => {
+    const typesSet = new Set();
+    initialAccessories.forEach((accessory) => {
+      if (accessory.tipo) typesSet.add(accessory.tipo);
     });
-    return Array.from(tipos).sort();
+    const ordered = ACCESSORY_TYPES.filter((t) => typesSet.has(t));
+    const others = Array.from(typesSet).filter((t) => !ACCESSORY_TYPES.includes(t));
+    return [...ordered, ...others];
   }, [initialAccessories]);
 
   // Extraer acabados únicos
@@ -60,9 +70,11 @@ export default function AccessoriesClient({ initialAccessories }) {
       });
     }
 
-    // Filtro de tipo
-    if (selectedTipos.length > 0) {
-      filtered = filtered.filter((a) => selectedTipos.includes(a.tipo));
+    // Filtro de tipos
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter((accessory) =>
+        selectedTypes.includes(accessory.tipo),
+      );
     }
 
     // Filtro de acabados
@@ -84,21 +96,23 @@ export default function AccessoriesClient({ initialAccessories }) {
     }
 
     return filtered;
-  }, [searchTerm, initialAccessories, selectedTipos, selectedFinishes, selectedLightTones]);
+  }, [searchTerm, initialAccessories, selectedTypes, selectedFinishes, selectedLightTones]);
 
   const handleClearSearch = () => {
     setSearchTerm('');
   };
 
   const handleClearFilters = () => {
-    setSelectedTipos([]);
+    setSelectedTypes([]);
     setSelectedFinishes([]);
     setSelectedLightTones([]);
   };
 
-  const toggleTipo = (tipo) => {
-    setSelectedTipos((prev) =>
-      prev.includes(tipo) ? prev.filter((t) => t !== tipo) : [...prev, tipo],
+  const toggleType = (type) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type)
+        ? prev.filter((t) => t !== type)
+        : [...prev, type],
     );
   };
 
@@ -130,7 +144,7 @@ export default function AccessoriesClient({ initialAccessories }) {
   };
 
   const activeFiltersCount =
-    selectedTipos.length + selectedFinishes.length + selectedLightTones.length;
+    selectedTypes.length + selectedFinishes.length + selectedLightTones.length;
 
   return (
     <div className="products-layout">
@@ -145,19 +159,19 @@ export default function AccessoriesClient({ initialAccessories }) {
           )}
         </div>
 
-        {/* Tipo */}
-        {availableTipos.length > 0 && (
+        {/* Tipos de Accesorio */}
+        {availableTypes.length > 0 && (
           <div className="filter-group">
-            <h4 className="filter-title">Tipo</h4>
+            <h4 className="filter-title">Tipo de Accesorio</h4>
             <div className="filter-options">
-              {availableTipos.map((tipo) => (
-                <label key={tipo} className="filter-checkbox">
+              {availableTypes.map((type) => (
+                <label key={type} className="filter-checkbox">
                   <input
                     type="checkbox"
-                    checked={selectedTipos.includes(tipo)}
-                    onChange={() => toggleTipo(tipo)}
+                    checked={selectedTypes.includes(type)}
+                    onChange={() => toggleType(type)}
                   />
-                  <span className="checkbox-label">{tipo}</span>
+                  <span className="checkbox-label">{type}</span>
                 </label>
               ))}
             </div>

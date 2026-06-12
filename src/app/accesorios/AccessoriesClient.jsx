@@ -4,6 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NoResults } from '@/components/productos/product-no-result';
 
+const R2_BASE_URL = 'https://pub-991b1e142013489ca0b64e1e314c7386.r2.dev';
+
+function getImageUrl(path) {
+  if (!path) return '/gsg/no-image.svg';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${R2_BASE_URL}/${path}`;
+}
+
 const ACCESSORY_TYPES = [
   'Amplificadores',
   'Controladoras',
@@ -135,14 +143,11 @@ export default function AccessoriesClient({ initialAccessories }) {
     );
   };
 
-  // Obtener imagen del accesorio
+  // Obtener imagen del accesorio — misma lógica que AccessoryDetailClient
   const getAccessoryImage = (accessory) => {
-    if (accessory.media && accessory.media.length > 0) {
-      const coverImage = accessory.media.find((m) => m.kind === 'gallery');
-      if (coverImage) return coverImage.path;
-      return accessory.media[0].path;
-    }
-    if (accessory.photoUrl) return accessory.photoUrl;
+    const mediaImages = (accessory.media || []).filter((m) => m.kind === 'gallery' || m.kind === 'tech');
+    if (mediaImages.length > 0) return getImageUrl(mediaImages[0].path);
+    if (accessory.photoUrl) return getImageUrl(accessory.photoUrl);
     return '/gsg/no-image.svg';
   };
 
